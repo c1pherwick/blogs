@@ -1,52 +1,34 @@
-/* Topics — Google-style directory: statement head with jump chips, then
-   pastel topic cards, a series band (cover tiles), and photo collections. */
+/* Topics hub — the same wall as the feed: a short header with jump chips, then
+   writing topics, series and photo collections as blog.google-style cards. */
 
-.body {
+.wrap {
   max-width: var(--container);
   margin: 0 auto;
-  padding: clamp(20px, 2.6vw, 32px) var(--container-pad) clamp(64px, 8vw, 104px);
+  padding: clamp(24px, 3vw, 40px) var(--container-pad) var(--spacer-6);
 }
 
-.breadcrumb {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: clamp(24px, 3vw, 40px);
-  font-size: 14px;
-  color: var(--gray-600);
-
-  a {
-    color: var(--blue-700);
-
-    &:hover {
-      color: var(--blue-900);
-    }
-  }
-
-  span[aria-hidden] {
-    color: var(--gray-500);
-  }
-}
+/* ---------- Header ---------- */
 
 .head {
   max-width: 62ch;
 }
 
 .title {
-  margin: 0;
-  font-family: var(--font-ui);
-  font-size: clamp(40px, 4.6vw, 58px);
+  margin: 18px 0 0;
+  font-family: var(--font-display);
+  font-size: var(--h1-size);
   font-weight: 400;
-  line-height: 1.08;
+  line-height: var(--h1-lh);
   letter-spacing: -0.02em;
   color: var(--gray-900);
 }
 
 .lede {
-  margin: 16px 0 0;
-  font-size: 18px;
-  line-height: 28px;
-  color: var(--gray-700);
+  margin: 14px 0 0;
+  font-family: var(--font-ui);
+  font-size: 17px;
+  line-height: 27px;
+  color: var(--gray-600);
 
   a {
     color: var(--blue-700);
@@ -59,360 +41,269 @@
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-top: 22px;
+  margin-top: clamp(22px, 2.6vw, 32px);
 }
 
 .jumpChip {
   display: inline-flex;
   align-items: center;
-  height: 38px;
+  height: 40px;
   padding: 0 18px;
-  border: 1px solid var(--gray-300);
+  border: 1px solid var(--gray-200);
   border-radius: var(--radius-pill);
-  background: var(--white);
-  color: var(--gray-800);
-  font-size: 14.5px;
-  font-weight: 500;
+  color: var(--gray-900);
+  font-family: var(--font-ui);
+  font-size: 15px;
+  line-height: 22px;
   text-decoration: none;
-  transition: border-color 150ms ease, background-color 150ms ease;
+  white-space: nowrap;
+  transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease;
 
   &:hover {
-    border-color: var(--gray-900);
-    background: var(--gray-50);
+    border-color: var(--blue-300);
+    background: var(--blue-25);
+    color: var(--blue-800);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--blue-600);
+    outline-offset: 2px;
   }
 }
 
+/* ---------- Sections ---------- */
+
 .section {
-  margin-top: clamp(44px, 5vw, 72px);
+  margin-top: clamp(40px, 5vw, 72px);
   scroll-margin-top: 96px;
 }
 
+.sectionTitle {
+  margin: 0 0 clamp(20px, 2.4vw, 32px);
+  font-family: var(--font-display);
+  font-size: var(--h2-size);
+  font-weight: 400;
+  line-height: var(--h2-lh);
+  letter-spacing: -0.02em;
+  color: var(--gray-900);
+}
+
 .sectionLede {
-  margin: 6px 0 0;
-  font-size: 15.5px;
-  line-height: 24px;
+  margin: -12px 0 clamp(20px, 2.4vw, 32px);
+  font-family: var(--font-ui);
+  font-size: 16px;
+  line-height: 25px;
   color: var(--gray-600);
 }
 
 .grid {
-  margin-top: var(--spacer-3);
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 24px;
-  align-items: stretch;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-/* Section heads get an editorial treatment: rule + label rhythm. */
-.section h2.section-title {
+.cell {
   display: flex;
-  align-items: center;
-  gap: 16px;
-  font-size: clamp(26px, 3vw, 34px);
-  font-weight: 600;
-  letter-spacing: -0.02em;
-
-  &::after {
-    content: "";
-    flex: 1;
-    height: 1px;
-    background: linear-gradient(90deg, var(--gray-200), transparent);
-  }
+  min-width: 0;
 }
 
-/* Shared action pill — always below the content, never over an image.\n   Inverts to ink-on-white → white-on-ink on hover, arrow slides. */
-.cardBtn {
-  margin-top: auto;
-  align-self: flex-start;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  height: 44px;
-  padding: 0 20px;
-  border: 1px solid transparent;
-  border-radius: var(--radius-pill);
-  background: var(--blue-600);
-  color: var(--white);
-  font-family: var(--font-ui);
-  font-size: 15px;
-  font-weight: 500;
-  white-space: nowrap;
-  transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+/* ---------- Card — same shell as PostCard ---------- */
 
-  svg {
-    transition: transform 160ms ease;
-  }
-
-  &:hover {
-    background: var(--blue-900);
-    color: var(--white);
-    box-shadow: 0 10px 22px -14px rgb(32 33 36 / 55%);
-
-    svg {
-      transform: translateX(3px);
-    }
-  }
-}
-
-/* ---------- Topic card — white with hairline; wash tile when no image ---- */
 .card {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  padding: 24px;
-  border-radius: 22px;
-  border: 1px solid var(--gray-200);
-  background: var(--white);
+  width: 100%;
+  height: 100%;
+  padding: 8px;
+  border-radius: var(--radius-card);
+  background: var(--gray-50);
+  transition: background-color 200ms ease, box-shadow 200ms ease;
+}
+
+.card:hover {
+  background: var(--gray-100);
+  box-shadow: var(--shadow-1);
+}
+
+.card:focus-within {
+  outline: 2px solid var(--blue-600);
+  outline-offset: 3px;
+}
+
+.media {
+  position: relative;
+  display: block;
+  flex: none;
+  aspect-ratio: 16 / 10;
+  border-radius: calc(var(--radius-card) - 8px);
   overflow: hidden;
-  transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 220ms ease, border-color 220ms ease;
+  background: var(--gray-200);
 
-  /* Colour wash anchored top-left behind the avatar. */
-  &::before {
-    content: "";
-    position: absolute;
-    inset: -40% -20% auto -30%;
-    height: 160%;
-    background: radial-gradient(closest-side, var(--card-bg, var(--blue-50)), transparent 72%);
-    opacity: 0.75;
-    pointer-events: none;
-  }
-
-  > * {
-    position: relative;
-  }
-
-  &:hover {
-    transform: translateY(-4px);
-    border-color: var(--gray-300);
-    box-shadow: 0 22px 44px -26px rgb(32 33 36 / 45%);
+  &:focus-visible {
+    outline: 2px solid var(--blue-600);
+    outline-offset: 2px;
   }
 }
 
-.cardTinted {
-  background: var(--white);
-  border-color: transparent;
-}
-
-.cardTop {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.cardHead {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 4px;
-  min-width: 0;
-}
-
-
-
-.cardShape {
-  flex: none;
-  width: 74px;
-  height: 74px;
+.img {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  border-radius: 24px;
-  border: 3px solid rgb(255 255 255 / 92%);
-  box-shadow: 0 8px 20px -10px rgb(32 33 36 / 45%);
-  transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1), border-radius 220ms ease;
+  transition: transform 500ms cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
-.card:hover .cardShape {
-  transform: scale(1.05) rotate(-2deg);
-  border-radius: 20px;
+.card:hover .img {
+  transform: scale(1.03);
 }
 
-.shapeFallback {
-  flex: none;
+/* Coverless topics get their aurora plate with the topic initial. */
+.plate {
+  position: absolute;
+  inset: 0;
   display: grid;
   place-items: center;
-  width: 74px;
-  height: 74px;
-  border-radius: 24px;
-  background: var(--white);
-  border: 3px solid rgb(255 255 255 / 92%);
-  box-shadow: 0 8px 20px -10px rgb(32 33 36 / 45%);
-  font-family: var(--font-ui);
-  font-size: 26px;
-  font-weight: 600;
-  color: var(--gray-700);
+  background: var(--card-bg, var(--gray-200));
+}
+
+.plateMark {
+  font-family: var(--font-display);
+  font-size: 64px;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--gray-900);
+  opacity: 0.5;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 16px 16px 20px;
 }
 
 .cardTitle {
   margin: 0;
   font-family: var(--font-ui);
-  font-size: 23px;
-  font-weight: 600;
-  line-height: 1.2;
-  letter-spacing: -0.3px;
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 30px;
+  letter-spacing: -0.1px;
   color: var(--gray-900);
+  text-wrap: pretty;
 
   a {
     color: inherit;
-    background-image: linear-gradient(currentColor, currentColor);
-    background-repeat: no-repeat;
-    background-size: 0% 2px;
-    background-position: 0 100%;
-    transition: background-size 220ms ease;
+    text-decoration: none;
+    transition: color 160ms ease;
+  }
 
-    &:hover {
-      text-decoration: none;
-      background-size: 100% 2px;
-    }
+  a::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-card);
+  }
+
+  a:focus-visible {
+    outline: none;
   }
 }
 
-.cardDesc {
-  margin: 0 0 8px;
+.card:hover .cardTitle {
+  color: var(--blue-700);
+}
+
+.desc {
+  margin: 10px 0 0;
+  font-family: var(--font-ui);
   font-size: 15px;
   line-height: 24px;
-  color: var(--gray-700);
+  color: var(--gray-600);
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-/* ---------- Series card — cover tile above, details below ---------- */
-.seriesGrid {
-  margin-top: var(--spacer-3);
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 24px;
-  align-items: stretch;
+.cardMeta {
+  margin: 10px 0 0;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--gray-500);
+  font-variant-numeric: tabular-nums;
 }
 
-.seriesCard {
-  display: flex;
-  flex-direction: column;
-  border-radius: 22px;
-  border: 1px solid var(--gray-200);
-  background: var(--white);
-  overflow: hidden;
-  transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 220ms ease, border-color 220ms ease;
-
-  &:hover {
-    transform: translateY(-4px);
-    border-color: var(--gray-300);
-    box-shadow: 0 24px 48px -26px rgb(32 33 36 / 45%);
-  }
-}
-
-.seriesMedia {
-  position: relative;
-  display: block;
-  aspect-ratio: 16 / 10;
-  background: var(--gray-100);
-  overflow: hidden;
-
-  /* Scrim so any cover blends into the card body. */
-  &::after {
-    content: "";
-    position: absolute;
-    inset: auto 0 0;
-    height: 45%;
-    background: linear-gradient(transparent, rgb(32 33 36 / 14%));
-    pointer-events: none;
-  }
-}
-
-.seriesImg {
-  object-fit: cover;
-  transition: transform 500ms cubic-bezier(0.2, 0, 0, 1);
-}
-
-.seriesCard:hover .seriesImg {
-  transform: scale(1.03);
-}
-
-.seriesFallback {
-  position: absolute;
-  inset: 0;
-  background: var(--gray-100);
-}
-
-.seriesBody {
-  display: flex;
-  flex-direction: column;
+.cta {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
   gap: 10px;
-  padding: 20px 22px 24px;
-  flex: 1;
+  height: 48px;
+  margin-top: 24px;
+  padding: 0 22px 0 24px;
+  border: 1px solid var(--gray-400);
+  border-radius: var(--radius-pill);
+  color: var(--gray-900);
+  font-family: var(--font-ui);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  letter-spacing: 0.1px;
+  white-space: nowrap;
+  transition: border-color 200ms ease, background-color 200ms ease;
+
+  svg {
+    flex: none;
+    transition: transform 200ms ease;
+  }
 }
 
-
-/* ---------- Photo collection card ---------- */
-.albumCard {
-  display: flex;
-  flex-direction: column;
-  border-radius: var(--radius-card);
-  border: 1px solid var(--gray-200);
+.card:hover .cta {
+  border-color: var(--gray-900);
   background: var(--white);
-  overflow: hidden;
-  transition: border-color 250ms ease, box-shadow 250ms ease, transform 250ms ease;
 
-  &:hover {
-    border-color: var(--gray-300);
-    box-shadow: 0 16px 36px -22px rgba(32, 33, 36, 0.38);
-    transform: translateY(-2px);
+  svg {
+    transform: translateX(2px);
   }
 }
 
-.albumMedia {
-  display: block;
-  aspect-ratio: 3 / 2;
-  background: var(--gray-100);
-  overflow: hidden;
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    transition: transform 500ms cubic-bezier(0.2, 0, 0, 1);
-  }
-}
-
-.albumCard:hover .albumMedia img {
-  transform: scale(1.03);
-}
-
-.albumBody {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 18px 20px 22px;
-  flex: 1;
-}
-
-.albumMeta {
-  margin: 0 0 10px;
-  font-size: 13.5px;
-  color: var(--gray-600);
-}
+/* ---------- Responsive ---------- */
 
 @media (max-width: 1000px) {
-  .grid,
-  .seriesGrid {
+  .grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 640px) {
-  .grid,
-  .seriesGrid {
+@media (max-width: 700px) {
+  .grid {
     grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
   }
 
-  .title {
-    font-size: 34px;
+  .plateMark {
+    font-size: 48px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .img,
+  .cta,
+  .cta svg,
+  .jumpChip {
+    transition: none;
   }
 
-  .lede {
-    font-size: 16px;
-    line-height: 25px;
+  .card:hover .img {
+    transform: none;
+  }
+
+  .card:hover .cta svg {
+    transform: none;
   }
 }

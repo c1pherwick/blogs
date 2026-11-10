@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { allCategories, getAllSeries, getAlbums } from "@/lib/data";
+import { allTopics, getAllSeries, getAlbums } from "@/lib/data";
 import { ArrowRight } from "@/components/icons/Icons";
+import { Breadcrumb } from "@/components/ui/Breadcrumb";
+import { countLabel } from "@/lib/dates";
 import styles from "./topics.module.scss";
 import { routes } from "@/lib/routes";
 
@@ -15,33 +17,20 @@ export const metadata: Metadata = {
   openGraph: { url: "/topics", title: "Topics", description },
 };
 
-const SHAPE_RADIUS: Record<string, string> = {
-  circle: "50%",
-  squircle: "38% / 38%",
-  leaf: "0 60% 0 60%",
-  blob: "46% 54% 58% 42% / 52% 44% 56% 48%",
-  petal: "72% 28% 68% 32% / 30% 66% 34% 70%",
-};
-
 export default async function CategoriesPage() {
-  const [categories, albums, allSeries] = await Promise.all([allCategories(), getAlbums(), getAllSeries()]);
+  const [topics, albums, allSeries] = await Promise.all([allTopics(), getAlbums(), getAllSeries()]);
   /* Every topic is listed — an empty one just shows "No stories yet". */
-  const writing = [...categories].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+  const writing = [...topics].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
   const series = [...allSeries].sort((a, b) => b.posts.length - a.posts.length);
 
   return (
-    <div className={styles.body}>
-      <nav className={styles.breadcrumb} aria-label="Breadcrumb">
-        <Link href={routes.home}>Home</Link>
-        <span aria-hidden="true">›</span>
-        <span aria-current="page">Topics</span>
-      </nav>
-
+    <div className={styles.wrap}>
       <header className={styles.head}>
+        <Breadcrumb items={[{ label: "Home", href: routes.home }, { label: "Topics" }]} />
         <h1 className={styles.title}>Topics</h1>
         <p className={styles.lede}>
-          The themes I write under, plus the photo collections. Looking for something
-          narrower? <Link href={routes.tags}>Browse the tags</Link>.
+          The themes I write under, plus the photo collections. Looking for something narrower?{" "}
+          <Link href={routes.tags}>Browse the tags</Link>.
         </p>
         <nav className={styles.jump} aria-label="Jump to section">
           <a href="#writing" className={styles.jumpChip}>Writing</a>
@@ -50,109 +39,119 @@ export default async function CategoriesPage() {
         </nav>
       </header>
 
-      <section id="writing" className={styles.section} aria-label="Writing topics">
-        <h2 className="section-title">Writing topics</h2>
-        <div className={styles.grid}>
-          {writing.map((category) => (
-            <article key={category.slug} className={`${styles.card}${category.image ? "" : ` ${styles.cardTinted}`}`}>
-              <div className={styles.cardTop}>
-                {category.image ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={category.image}
-                    alt=""
-                    loading="lazy"
-                    className={styles.cardShape}
-                    style={{ borderRadius: SHAPE_RADIUS[category.shape ?? "circle"] ?? "50%" }}
-                  />
-                ) : (
-                  <span className={styles.shapeFallback} aria-hidden="true">
-                    {category.name.charAt(0)}
-                  </span>
-                )}
-                <div className={styles.cardHead}>
+      <section id="writing" className={styles.section} aria-labelledby="writing-heading">
+        <h2 id="writing-heading" className={styles.sectionTitle}>Writing topics</h2>
+
+        <ul className={styles.grid}>
+          {writing.map((topic) => (
+            <li key={topic.slug} className={styles.cell}>
+              <article className={styles.card}>
+                <Link href={routes.category(topic.slug)} className={styles.media} tabIndex={-1} aria-hidden="true">
+                  {topic.image ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={topic.image} alt="" loading="lazy" className={styles.img} />
+                  ) : (
+                    <span className={`${styles.plate} pastel-${topic.pastel}`}>
+                      <span className={styles.plateMark}>{topic.name.charAt(0)}</span>
+                    </span>
+                  )}
+                </Link>
+
+                <div className={styles.body}>
                   <h3 className={styles.cardTitle}>
-                    <Link href={routes.category(category.slug)}>{category.name}</Link>
+                    <Link href={routes.category(topic.slug)}>{topic.name}</Link>
                   </h3>
+                  <p className={styles.desc}>
+                    {topic.description || "Stories filed under this topic as they publish."}
+                  </p>
+                  <p className={styles.cardMeta}>
+                    {topic.count > 0 ? countLabel(topic.count) : "No stories yet"}
+                  </p>
+                  <span className={styles.cta} aria-hidden="true">
+                    Explore topic
+                    <ArrowRight width={18} height={18} />
+                  </span>
                 </div>
-              </div>
-              <p className={styles.cardDesc}>
-                {category.description || "Stories filed under this topic as they publish."}
-              </p>
-              <Link href={routes.category(category.slug)} className={styles.cardBtn}>
-                Read more <ArrowRight width={18} height={18} />
-              </Link>
-            </article>
+              </article>
+            </li>
           ))}
-        </div>
+        </ul>
       </section>
 
       {series.length > 0 ? (
-        <section id="series" className={styles.section} aria-label="Series">
-          <h2 className="section-title">Series</h2>
+        <section id="series" className={styles.section} aria-labelledby="series-heading">
+          <h2 id="series-heading" className={styles.sectionTitle}>Series</h2>
           <p className={styles.sectionLede}>Reading orders worth following from start to finish.</p>
-          <div className={styles.seriesGrid}>
+
+          <ul className={styles.grid}>
             {series.map((s) => (
-              <article key={s.slug} className={styles.seriesCard}>
-                <Link href={routes.series(s.slug)} className={styles.seriesMedia} tabIndex={-1} aria-hidden="true">
-                  {s.cover ? (
-                    <Image src={s.cover} alt="" fill sizes="(max-width: 760px) 100vw, (max-width: 1100px) 50vw, 400px" className={styles.seriesImg} />
-                  ) : (
-                    <span className={styles.seriesFallback} />
-                  )}
-                </Link>
-                <div className={styles.seriesBody}>
-                  <h3 className={styles.cardTitle}>
-                    <Link href={routes.series(s.slug)}>{s.title}</Link>
-                  </h3>
-                  {s.description && s.description.trim().toLowerCase() !== s.title.trim().toLowerCase() ? (
-                    <p className={styles.cardDesc}>{s.description}</p>
-                  ) : (
-                    <p className={styles.cardDesc}>A reading order worth following from the start.</p>
-                  )}
-                  <Link href={routes.series(s.slug)} className={styles.cardBtn}>
-                    View series <ArrowRight width={18} height={18} />
+              <li key={s.slug} className={styles.cell}>
+                <article className={styles.card}>
+                  <Link href={routes.series(s.slug)} className={styles.media} tabIndex={-1} aria-hidden="true">
+                    {s.cover ? (
+                      <Image src={s.cover} alt="" fill sizes="(max-width: 700px) 100vw, (max-width: 1000px) 50vw, 400px" className={styles.img} />
+                    ) : (
+                      <span className={`${styles.plate} pastel-gray`} />
+                    )}
                   </Link>
-                </div>
-              </article>
+
+                  <div className={styles.body}>
+                    <h3 className={styles.cardTitle}>
+                      <Link href={routes.series(s.slug)}>{s.title}</Link>
+                    </h3>
+                    <p className={styles.desc}>
+                      {s.description && s.description.trim().toLowerCase() !== s.title.trim().toLowerCase()
+                        ? s.description
+                        : "A reading order worth following from the start."}
+                    </p>
+                    <p className={styles.cardMeta}>{countLabel(s.posts.length)}</p>
+                    <span className={styles.cta} aria-hidden="true">
+                      View series
+                      <ArrowRight width={18} height={18} />
+                    </span>
+                  </div>
+                </article>
+              </li>
             ))}
-          </div>
+          </ul>
         </section>
       ) : null}
 
       {albums.length > 0 ? (
-        <section id="albums" className={styles.section} aria-label="Photo collections">
-          <h2 className="section-title">Photo collections</h2>
-          <div className={styles.grid}>
+        <section id="albums" className={styles.section} aria-labelledby="albums-heading">
+          <h2 id="albums-heading" className={styles.sectionTitle}>Photo collections</h2>
+
+          <ul className={styles.grid}>
             {albums.map((album) => (
-              <article key={album.slug} className={styles.albumCard}>
-                <Link
-                  href={routes.album(album.slug)}
-                  className={styles.albumMedia}
-                  tabIndex={-1}
-                  aria-hidden="true"
-                >
-                  {/* A coverless album has cover === "" — an empty src makes
-                      the browser re-request this page as an image. */}
-                  {album.cover ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={album.cover} alt="" loading="lazy" />
-                  ) : null}
-                </Link>
-                <div className={styles.albumBody}>
-                  <h3 className={styles.cardTitle}>
-                    <Link href={routes.album(album.slug)}>{album.title}</Link>
-                  </h3>
-                  <p className={styles.albumMeta}>
-                    {album.photos.length} photos · {album.year}
-                  </p>
-                  <Link href={routes.album(album.slug)} className={styles.cardBtn}>
-                    Browse album <ArrowRight width={18} height={18} />
+              <li key={album.slug} className={styles.cell}>
+                <article className={styles.card}>
+                  <Link href={routes.album(album.slug)} className={styles.media} tabIndex={-1} aria-hidden="true">
+                    {/* A coverless album has cover === "" — an empty src makes
+                        the browser re-request this page as an image. */}
+                    {album.cover ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={album.cover} alt="" loading="lazy" className={styles.img} />
+                    ) : (
+                      <span className={`${styles.plate} pastel-gray`} />
+                    )}
                   </Link>
-                </div>
-              </article>
+
+                  <div className={styles.body}>
+                    <h3 className={styles.cardTitle}>
+                      <Link href={routes.album(album.slug)}>{album.title}</Link>
+                    </h3>
+                    <p className={styles.cardMeta}>
+                      {album.photos.length} photos · {album.year}
+                    </p>
+                    <span className={styles.cta} aria-hidden="true">
+                      Browse album
+                      <ArrowRight width={18} height={18} />
+                    </span>
+                  </div>
+                </article>
+              </li>
             ))}
-          </div>
+          </ul>
         </section>
       ) : null}
     </div>
