@@ -77,9 +77,19 @@ export function SiteHeader({ settings }: { settings: SiteSettings }) {
     if (!drawer) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    // Move focus into the sheet: the close control is the burger outside the
+    // dialog, so focus the first in-dialog link instead.
     const frame = window.requestAnimationFrame(() => {
-      drawerRef.current?.querySelector<HTMLElement>('[aria-label="Close menu"]')?.focus();
+      drawerRef.current
+        ?.querySelector<HTMLElement>('a[href], button:not([disabled]), input:not([disabled])')
+        ?.focus();
     });
+
+    // A modal drawer should not leave the page behind it in the tab order.
+    const outside = [document.querySelector("main"), document.querySelector("footer")].filter(
+      (el): el is HTMLElement => Boolean(el),
+    );
+    for (const el of outside) el.setAttribute("inert", "");
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") setDrawer(false);
@@ -104,6 +114,7 @@ export function SiteHeader({ settings }: { settings: SiteSettings }) {
       window.cancelAnimationFrame(frame);
       document.removeEventListener("keydown", onKeyDown);
       document.body.style.overflow = previousOverflow;
+      for (const el of outside) el.removeAttribute("inert");
       burgerRef.current?.focus();
     };
   }, [drawer]);
@@ -201,7 +212,7 @@ export function SiteHeader({ settings }: { settings: SiteSettings }) {
           <div className={styles.actions}>
             {/* The field expands leftward over the nav so there's room to type. */}
             <div className={`${styles.searchBox} ${searchOpen ? styles.searchBoxOpen : ""}`}>
-              <form onSubmit={submitSearch} className={styles.searchForm} role="search">
+              <form id="site-search-form" onSubmit={submitSearch} className={styles.searchForm} role="search">
                 <SearchIcon width={20} height={20} className={styles.searchGlyph} />
                 <input
                   ref={searchInputRef}
@@ -221,6 +232,7 @@ export function SiteHeader({ settings }: { settings: SiteSettings }) {
                 className={`${styles.iconBtn} ${styles.searchIconDesktop}`}
                 aria-label={searchOpen ? "Close search" : "Search"}
                 aria-expanded={searchOpen}
+                aria-controls="site-search-form"
                 aria-keyshortcuts="/"
                 onClick={() => (searchOpen ? closeSearch() : openSearch())}
               >
@@ -248,6 +260,7 @@ export function SiteHeader({ settings }: { settings: SiteSettings }) {
               onClick={toggleDrawer}
               aria-expanded={drawer}
               aria-controls="site-menu"
+              aria-haspopup="dialog"
               aria-label={drawer ? "Close menu" : "Open menu"}
             >
               {drawer ? <CloseIcon width={22} height={22} /> : <MenuIcon width={22} height={22} />}
