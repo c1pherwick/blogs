@@ -57,7 +57,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
         <div className={styles.headRow}>
           <div>
             <h1 className={styles.title}>{category.name}</h1>
-            <p className={styles.lede}>{category.description}</p>
+            <p className={styles.lede}>{category.description || `Stories filed under ${category.name}.`}</p>
           </div>
           <p className={styles.count}>
             {posts.length} {posts.length === 1 ? "story" : "stories"}
@@ -144,7 +144,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
               <li key={t.slug}>
                 <Link href={routes.category(t.slug)} className={styles.topicRow}>
                   <span className={styles.topicName}>{t.name}</span>
-                  <span className={styles.topicCount}>{t.count}</span>
+                  <span className={styles.topicCount}>{t.count} {t.count === 1 ? "story" : "stories"}</span>
                   <ArrowRight size={16} />
                 </Link>
               </li>

@@ -74,6 +74,9 @@ export default async function CategoriesPage() {
                   <h3 className={styles.cardTitle}>
                     <Link href={routes.category(category.slug)}>{category.name}</Link>
                   </h3>
+                  <p className={styles.cardCount}>
+                    {category.count} {category.count === 1 ? "story" : "stories"}
+                  </p>
                 </div>
               </div>
               <p className={styles.cardDesc}>
@@ -89,8 +92,15 @@ export default async function CategoriesPage() {
 
       {series.length > 0 ? (
         <section id="series" className={styles.section} aria-label="Series">
-          <h2 className="section-title">Series</h2>
-          <p className={styles.sectionLede}>Reading orders worth following from start to finish.</p>
+          <div className={styles.sectionHead}>
+            <div>
+              <h2 className="section-title">Series</h2>
+              <p className={styles.sectionLede}>Reading orders worth following from start to finish.</p>
+            </div>
+            <Link href={routes.seriesIndex} className={styles.sectionLink}>
+              All series <ArrowRight width={16} height={16} />
+            </Link>
+          </div>
           <div className={styles.seriesGrid}>
             {series.map((s) => (
               <article key={s.slug} className={styles.seriesCard}>
