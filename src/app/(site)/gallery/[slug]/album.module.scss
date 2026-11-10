@@ -79,6 +79,30 @@
   padding: var(--spacer-4) var(--container-pad) var(--spacer-6);
 }
 
+.empty {
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+  padding: var(--spacer-6) 0;
+  color: var(--gray-700);
+
+  h2 {
+    margin: 0;
+    font-family: var(--font-ui);
+    font-size: clamp(24px, 3vw, 32px);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    color: var(--gray-900);
+  }
+
+  p {
+    margin: 0;
+    font-size: 16px;
+    line-height: 26px;
+    color: var(--gray-600);
+  }
+}
+
 .navWrap {
   width: 100%;
   margin-top: auto;
