@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/adminAuth";
 import { db } from "@/lib/supabase/server";
 import { env } from "@/lib/env";
+import { fetchRemoteFile } from "@/lib/safe-fetch";
 
 export const dynamic = "force-dynamic";
 
@@ -71,32 +72,12 @@ export async function POST(request: Request) {
   if (contentType.includes("application/json")) {
     const body = (await request.json().catch(() => null)) as { url?: unknown } | null;
     const raw = typeof body?.url === "string" ? body.url.trim() : "";
-    let target: URL;
-    try {
-      target = new URL(raw);
-    } catch {
-      return NextResponse.json({ error: "Enter a valid http(s) URL" }, { status: 400 });
+    // SSRF-safe download: private/local targets and unsafe redirects rejected.
+    const remote = await fetchRemoteFile(raw, MAX_VIDEO_BYTES);
+    if (!remote.ok) {
+      return NextResponse.json({ error: remote.error }, { status: remote.status });
     }
-    if (target.protocol !== "https:" && target.protocol !== "http:") {
-      return NextResponse.json({ error: "Only http(s) URLs can be imported" }, { status: 400 });
-    }
-    const fetched = await fetch(target.toString(), {
-      redirect: "follow",
-      headers: { "user-agent": "Mozilla/5.0 (compatible; SiteUploadImport/1.0)" },
-      signal: AbortSignal.timeout(20_000),
-    }).catch(() => null);
-    if (!fetched?.ok) {
-      return NextResponse.json({ error: "Could not download that URL" }, { status: 400 });
-    }
-    const declaredSize = Number(fetched.headers.get("content-length") ?? 0);
-    if (declaredSize > MAX_VIDEO_BYTES) {
-      return NextResponse.json({ error: "Remote file is too large" }, { status: 413 });
-    }
-    const buf = await fetched.arrayBuffer();
-    if (buf.byteLength === 0 || buf.byteLength > MAX_VIDEO_BYTES) {
-      return NextResponse.json({ error: "Remote file is empty or too large" }, { status: 413 });
-    }
-    bytes = new Uint8Array(buf);
+    bytes = remote.bytes;
   } else {
     const declared = Number(request.headers.get("content-length") ?? 0);
     if (Number.isFinite(declared) && declared > MAX_VIDEO_BYTES + 1_000_000) {

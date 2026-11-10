@@ -5,14 +5,38 @@ import { requireAdmin } from "@/lib/adminAuth";
 import { revalidateContentCache } from "@/lib/data";
 import { safeImageUrl } from "@/lib/sanitize-rich";
 import { db } from "@/lib/supabase/server";
+import { isSameOrigin } from "@/lib/security";
+import { site } from "@/lib/site";
 
 export type Handler = (req: NextRequest, ctx: { params: Promise<any> }) => Promise<Response>;
 
-/** Wraps an admin mutation route: cookie auth + JSON errors + cache revalidation. */
+const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
+
+function siteHost(): string | null {
+  try {
+    return new URL(site.url).host;
+  } catch {
+    return null;
+  }
+}
+
+/** Wraps an admin mutation route: cookie auth + CSRF origin check + JSON errors. */
 export function adminRoute(handler: Handler) {
   return async (req: NextRequest, ctx: { params: Promise<any> }) => {
     const denied = await requireAdmin();
     if (denied) return denied;
+    // SameSite=Strict is the primary CSRF defence; reject mismatched Origins too.
+    if (MUTATING_METHODS.has(req.method)) {
+      const allowed = [
+        req.headers.get("host"),
+        req.headers.get("x-forwarded-host"),
+        siteHost(),
+        process.env.VERCEL_URL,
+      ];
+      if (!isSameOrigin(req.headers.get("origin"), allowed)) {
+        return NextResponse.json({ error: "Cross-origin request rejected" }, { status: 403 });
+      }
+    }
     try {
       const res = await handler(req, ctx);
       if (res.status < 400 && ["POST", "PUT", "PATCH", "DELETE"].includes(req.method)) {
