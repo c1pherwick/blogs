@@ -22,6 +22,7 @@ export default function SiteError({ error, reset }: { error: Error & { digest?: 
           Try again
         </button>
         <Link href={routes.blog} className="btn btn-outline">All posts</Link>
+        <Link href={routes.search} className="btn btn-outline">Search</Link>
         <Link href={routes.home} className="btn btn-outline">Home</Link>
       </div>
       {error.digest ? <p className={styles.digest}>Reference: {error.digest}</p> : null}

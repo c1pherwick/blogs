@@ -361,6 +361,7 @@ export function PostEditor({ postId }: { postId: string }) {
   const [draft, setDraft] = useState<EditorDraft | null>(null);
   const [saved, setSaved] = useState<string | null>(null);
   const [saveError, setSaveError] = useState("");
+  const [titleError, setTitleError] = useState("");
   const [tab, setTab] = useState<"write" | "preview" | "settings" | "insights">("write");
   const [dirty, setDirty] = useState(false);
   const [activeBlock, setActiveBlock] = useState<number | null>(null);
@@ -546,8 +547,23 @@ export function PostEditor({ postId }: { postId: string }) {
   }
 
   function removeBlock(i: number) {
+    const removed = draft?.blocks[i];
+    if (!removed) return;
     setDirty(true);
     setDraft((d) => (d ? { ...d, blocks: d.blocks.filter((_, idx) => idx !== i) } : d));
+    // Deleting a block throws away whatever was typed in it, so keep a way back.
+    toast(`${blockLabel(removed.type)} block deleted`, "success", {
+      label: "Undo",
+      onClick: () => {
+        setDirty(true);
+        setDraft((d) => {
+          if (!d) return d;
+          const next = [...d.blocks];
+          next.splice(i, 0, removed);
+          return { ...d, blocks: next };
+        });
+      },
+    });
   }
 
   function moveBlock(i: number, dir: -1 | 1) {
@@ -653,6 +669,15 @@ export function PostEditor({ postId }: { postId: string }) {
 
   async function save(status?: ApiPost["status"]) {
     if (!draft || saving) return;
+    // The server rejects a missing headline, so explain it next to the field
+    // instead of letting the request fail with a banner-only message.
+    if (!draft.title.trim()) {
+      setTitleError("Add a headline before saving — it becomes the post title, URL and card headline.");
+      setTab("write");
+      window.setTimeout(() => titleRef.current?.focus(), 30);
+      return;
+    }
+    setTitleError("");
     setSaving(true);
     setSaveError("");
     try {
@@ -760,7 +785,9 @@ export function PostEditor({ postId }: { postId: string }) {
 
         if (mod && key === "s") {
           e.preventDefault();
-          if (!saving) void save("draft");
+          // Plain save: never change the publishing status. Demoting a live
+          // post to draft must stay an explicit action.
+          if (!saving) void save();
         } else if (mod && key === "enter") {
           e.preventDefault();
           if (!saving) void save("published");
@@ -908,7 +935,12 @@ export function PostEditor({ postId }: { postId: string }) {
                   type="button"
                   className={styles.moreItemDanger}
                   onClick={async () => {
-                    if (!window.confirm(`Delete “${draft.title || "this post"}”? This cannot be undone.`)) return;
+                    const ok = await confirm({
+                      title: "Delete post",
+                      body: `Delete “${draft.title || "this post"}”? This cannot be undone.`,
+                      confirmLabel: "Delete post",
+                    });
+                    if (!ok) return;
                     try {
                       await api.del(`/api/admin/posts/${draft.id}?hard=1`);
                       router.push("/admin/posts");
@@ -974,11 +1006,19 @@ export function PostEditor({ postId }: { postId: string }) {
                     value={draft.title}
                     placeholder="Untitled story"
                     aria-label="Post title"
+                    aria-invalid={titleError ? true : undefined}
+                    aria-describedby={titleError ? "post-title-error" : undefined}
                     onChange={(e) => {
+                      if (titleError) setTitleError("");
                       patch({ title: e.target.value });
                       if (!slugTouched.current) patch({ slug: slugifyTitle(e.target.value) });
                     }}
                   />
+                  {titleError ? (
+                    <p id="post-title-error" role="alert" className={styles.fieldError}>
+                      {titleError}
+                    </p>
+                  ) : null}
                   <textarea
                     ref={descRef}
                     className={styles.desc}

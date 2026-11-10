@@ -168,6 +168,28 @@
 .tone-red { background: var(--red-50); color: var(--red-700); }
 .tone-flat { background: var(--gray-50); color: var(--gray-700); }
 
+.state {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 28px 24px;
+  font-size: 13.5px;
+  color: var(--gray-600);
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--gray-200);
+  border-top-color: var(--blue-600);
+  animation: spin 700ms linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 .empty {
   display: grid;
   justify-items: center;

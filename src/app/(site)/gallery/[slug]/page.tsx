@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AlbumGrid } from "@/components/gallery/AlbumGrid";
 import { AlbumNav } from "@/components/gallery/NextAlbum";
 import { getAlbum, getAlbums } from "@/lib/data";
 import { sanitizeRichText } from "@/lib/sanitize-rich";
+import { Breadcrumb } from "@/components/ui/Breadcrumb";
+import { routes } from "@/lib/routes";
 import styles from "./album.module.scss";
 
 export async function generateStaticParams() {
@@ -45,8 +48,15 @@ export default async function AlbumPage({ params }: { params: Promise<{ slug: st
     <div className={styles.page}>
       <div className={styles.hero}>
         <div className={styles.heroInner}>
+          <Breadcrumb
+            items={[
+              { label: "Home", href: routes.home },
+              { label: "Gallery", href: routes.gallery },
+              { label: album.title },
+            ]}
+          />
           <h1 className={styles.title}>{album.title}</h1>
-          <p className={styles.subtitle}>{album.subtitle}</p>
+          {album.subtitle ? <p className={styles.subtitle}>{album.subtitle}</p> : null}
           {album.description ? <p className={styles.description} dangerouslySetInnerHTML={{ __html: sanitizeRichText(album.description) }} /> : null}
           <p className={styles.count}>
             {album.photos.length} {album.photos.length === 1 ? "photo" : "photos"} · {album.year}
@@ -55,7 +65,15 @@ export default async function AlbumPage({ params }: { params: Promise<{ slug: st
       </div>
 
       <div className={styles.body}>
-        <AlbumGrid photos={album.photos} count={album.photos.length} />
+        {album.photos.length > 0 ? (
+          <AlbumGrid photos={album.photos} count={album.photos.length} />
+        ) : (
+          <div className={styles.empty}>
+            <h2>No photos in this album yet</h2>
+            <p>The frames will appear here as they are added.</p>
+            <Link href={routes.gallery} className="btn btn-outline">Back to the gallery</Link>
+          </div>
+        )}
       </div>
 
       {prev || next ? (

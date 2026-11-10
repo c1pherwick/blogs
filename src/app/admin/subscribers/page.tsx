@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { api, useApiCollection, type ApiSubscriber } from "@/components/admin/api";
 import { Button } from "@/components/admin/Button";
 import { useConfirm, useToast } from "@/components/admin/Feedback";
-import { PageHeader, Segmented, StatusChip, statusTone, Table, DateCell } from "@/components/admin/kit";
+import { LoadingState, PageHeader, Segmented, StatusChip, statusTone, Table, DateCell } from "@/components/admin/kit";
 import styles from "./subscribers.module.scss";
 
 type Tab = "all" | "subscribed" | "pending" | "unsubscribed";
@@ -191,7 +191,7 @@ export default function AdminSubscribersPage() {
       />
 
       {error ? <p role="alert" className={styles.formError}>{error}</p> : null}
-      {subsC.loading ? <p className={styles.emptyNote}>Loading subscribers…</p> : null}
+      {subsC.loading ? <LoadingState label="Loading subscribers…" /> : null}
       {subsC.error ? <p role="alert" className={styles.formError}>Could not load subscribers: {subsC.error}</p> : null}
 
       <div className={styles.toolbar}>
@@ -229,7 +229,7 @@ export default function AdminSubscribersPage() {
         <p className={styles.emptyNote}>No subscribers match this view.</p>
       ) : (
       <div className={styles.tableCard}>
-        <Table>
+        <Table label="Subscribers">
           <thead>
             <tr>
               <th className={styles.checkCol}>

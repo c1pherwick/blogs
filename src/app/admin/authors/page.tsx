@@ -5,7 +5,7 @@ import { api, useApiCollection, type ApiAuthor } from "@/components/admin/api";
 import { Button } from "@/components/admin/Button";
 import { AdminDialog } from "@/components/admin/Dialog";
 import { useConfirm, useToast } from "@/components/admin/Feedback";
-import { EmptyState, PageHeader, StatusChip } from "@/components/admin/kit";
+import { EmptyState, LoadingState, PageHeader, StatusChip } from "@/components/admin/kit";
 import { SocialIcon } from "@/components/icons/Icons";
 import styles from "./authors.module.scss";
 
@@ -139,7 +139,7 @@ export default function AdminAuthorsPage() {
       </div>
 
       {authorsC.loading ? (
-        <p className={styles.muted}>Loading authors…</p>
+        <LoadingState label="Loading authors…" />
       ) : authorsC.error ? (
         <p className={styles.muted}>Could not load authors: {authorsC.error}</p>
       ) : authorsC.items.length === 0 ? (
@@ -147,7 +147,7 @@ export default function AdminAuthorsPage() {
           title="No authors yet"
           body="Add the people who write here — each gets a name, role, bio and social links."
           action="Add author"
-          href="#"
+          onAction={openNew}
         />
       ) : (
         <ul className={styles.grid}>

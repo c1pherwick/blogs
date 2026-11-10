@@ -7,6 +7,7 @@ import { api, useApiCollection, type ApiAlbum, type ApiPhoto } from "@/component
 import { Button } from "@/components/admin/Button";
 import { AdminDialog } from "@/components/admin/Dialog";
 import { useConfirm, useToast } from "@/components/admin/Feedback";
+import { LoadingState } from "@/components/admin/kit";
 import { detectExternalVideo } from "@/lib/external-video";
 import { Lightbox, type LightboxItem } from "@/components/ui/Lightbox";
 import styles from "./folder.module.scss";
@@ -156,7 +157,7 @@ export default function AdminFolderPage() {
     }
   }
 
-  if (albumsC.loading) return <p className={styles.muted}>Loading folder…</p>;
+  if (albumsC.loading) return <LoadingState label="Loading folder…" />;
   if (!album) {
     return (
       <div>
@@ -257,7 +258,7 @@ export default function AdminFolderPage() {
         </p>
       </div>
 
-      {photosC.loading ? <p className={styles.muted}>Loading items…</p> : null}
+      {photosC.loading ? <LoadingState label="Loading items…" /> : null}
       {!photosC.loading && shown.length === 0 ? (
         <div className={styles.emptyState}>
           {filter === "all" ? "This folder is empty — drop your first photo above." : `No ${filter === "image" ? "photos" : "videos"} in this folder yet.`}

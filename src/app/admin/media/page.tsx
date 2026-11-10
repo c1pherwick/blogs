@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { api, useApiCollection, type ApiPhoto, type ApiPost, type ApiUpload } from "@/components/admin/api";
 import { useConfirm, useToast } from "@/components/admin/Feedback";
-import { PageHeader, Segmented } from "@/components/admin/kit";
+import { LoadingState, PageHeader, Segmented } from "@/components/admin/kit";
 import styles from "./media.module.scss";
 
 export default function AdminMediaPage() {
@@ -133,7 +133,7 @@ export default function AdminMediaPage() {
       </div>
 
       {photosC.loading || uploadsC.loading ? (
-        <p className={styles.emptyNote}>Loading media…</p>
+        <LoadingState label="Loading media…" />
       ) : items.length === 0 ? (
         <p className={styles.emptyNote}>No media matches this view.</p>
       ) : (
