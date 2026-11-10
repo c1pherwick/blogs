@@ -12,7 +12,7 @@ import { routes } from "@/lib/routes";
 export const metadata: Metadata = {
   title: "Newsletter",
   description: "One email when something worth reading goes up. No schedule, no filler.",
-  alternates: { canonical: "/newsletter" },
+  alternates: { canonical: routes.newsletter },
   openGraph: {
     url: "/newsletter",
     title: "Newsletter",

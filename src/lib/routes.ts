@@ -23,6 +23,7 @@ export const routes = {
   category: (slug: string) => `/blog/category/${slug}`,
   tag: (slug: string) => `/blog/tag/${slug}`,
   album: (slug: string) => `/gallery/${slug}`,
+  seriesIndex: "/series",
   series: (slug: string) => `/series/${slug}`,
 } as const;
 

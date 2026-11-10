@@ -203,6 +203,7 @@
 /* Rail footer */
 .railFoot {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
@@ -255,6 +256,14 @@
 .signOut:disabled {
   opacity: 0.5;
   cursor: default;
+}
+
+.signOutError {
+  flex-basis: 100%;
+  margin: 2px 0 0;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--red-700, #c5221f);
 }
 
 /* Mobile rail controls (hidden on desktop) */
@@ -472,6 +481,7 @@
   color: var(--gray-900, #202124);
 }
 
+@media (min-width: 1101px) {
 /* Labels collapse away, leaving a centred icon strip. */
 .shellCollapsed {
   .railHead {
@@ -482,7 +492,18 @@
 
   .railHead .brandText { display: none; }
 
-  .navText { display: none; }
+  /* Keep the label in the accessibility tree even when the rail is icons only. */
+  .navText {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
 
   .navGroup {
     margin-bottom: 10px;
@@ -538,6 +559,7 @@
     opacity: 1;
     transform: translateY(-50%) scale(1);
   }
+}
 }
 
 .navText {

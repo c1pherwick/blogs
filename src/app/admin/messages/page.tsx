@@ -5,7 +5,7 @@ import { api, useApiCollection, type ApiMessage } from "@/components/admin/api";
 import { Button } from "@/components/admin/Button";
 import { AdminDialog } from "@/components/admin/Dialog";
 import { useConfirm, useToast } from "@/components/admin/Feedback";
-import { Card, PageHeader, Segmented, Table, DateCell } from "@/components/admin/kit";
+import { Card, LoadingState, PageHeader, Segmented, Table, DateCell } from "@/components/admin/kit";
 import styles from "./messages.module.scss";
 
 type Tab = "all" | "unread" | "read";
@@ -61,7 +61,7 @@ export default function AdminMessagesPage() {
   async function remove(message: ApiMessage) {
     const ok = await confirm({
       title: "Delete message",
-      body: "Delete this message? You can undo this from the toast.",
+      body: `Delete “${message.subject || "(no subject)"}” from ${message.name}? You can undo this from the toast.`,
       confirmLabel: "Delete message",
     });
     if (!ok) return;
@@ -107,7 +107,7 @@ export default function AdminMessagesPage() {
       <PageHeader title="Inbox" description="Messages sent from the contact form." />
       {error ? <p role="alert" className={styles.errorText}>{error}</p> : null}
       {messagesC.loading ? (
-        <p className={styles.mutedCell}>Loading messages…</p>
+        <LoadingState label="Loading messages…" />
       ) : messagesC.error ? (
         <p role="alert" className={styles.mutedCell}>Could not load messages: {messagesC.error}</p>
       ) : messagesC.items.length === 0 ? (
@@ -128,7 +128,7 @@ export default function AdminMessagesPage() {
             <p className={styles.mutedCell}>No messages match this filter.</p>
           ) : (
             <Card>
-              <Table>
+              <Table label="Messages">
                 <thead>
                   <tr>
                     <th>From</th>

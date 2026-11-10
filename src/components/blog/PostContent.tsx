@@ -76,6 +76,7 @@ export function PostContent({ blocks }: { blocks: Block[] }) {
   // Cover URLs can 404 before hydration (no onError fires then), so read
   // naturalWidth on mount as well and remember failures by block index.
   const [brokenCovers, setBrokenCovers] = useState<Record<string, true>>({});
+  const [brokenImages, setBrokenImages] = useState<Record<string, true>>({});
   const coverBroken = (key: string, el: HTMLImageElement | null) => {
     if (!el || el.complete === false || el.naturalWidth > 0) return;
     setBrokenCovers((prev) => (prev[key] ? prev : { ...prev, [key]: true }));
@@ -153,6 +154,16 @@ export function PostContent({ blocks }: { blocks: Block[] }) {
                 return <VideoEmbed key={key} url={block.src} caption={block.caption} />;
               }
               const remote = /^https?:\/\//i.test(block.src) && !block.src.includes(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "");
+              if (brokenImages[key]) {
+                return (
+                  <figure key={key} className={styles.figure}>
+                    <div className={styles.imageUnavailable} role="img" aria-label={block.alt || "Image unavailable"}>
+                      <span>{block.alt || "Image unavailable"}</span>
+                    </div>
+                    {block.caption ? <figcaption>{block.caption}</figcaption> : null}
+                  </figure>
+                );
+              }
               return (
                 <figure key={key} className={`${styles.figure}${block.width && block.width !== "full" ? ` ${styles[`fig${block.width[0].toUpperCase()}${block.width.slice(1)}`]}` : ""}`}>
                   {/* Article photos are not zoomable — the caption carries everything
@@ -160,7 +171,13 @@ export function PostContent({ blocks }: { blocks: Block[] }) {
                   <div className={block.variant === "diagram" ? `${styles.imageWrap} ${styles.imageWrapDiagram}` : styles.imageWrap}>
                     {remote ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={block.src} alt={block.alt} loading="lazy" className={styles.image} />
+                      <img
+                        src={block.src}
+                        alt={block.alt}
+                        loading="lazy"
+                        className={styles.image}
+                        onError={() => setBrokenImages((prev) => ({ ...prev, [key]: true }))}
+                      />
                     ) : (
                       <Image
                         src={block.src}
@@ -171,6 +188,7 @@ export function PostContent({ blocks }: { blocks: Block[] }) {
                         height={block.variant === "diagram" ? DIAGRAM_SIZE[block.src.split("/").pop() ?? ""]?.[1] ?? 520 : 933}
                         sizes="(max-width: 640px) 100vw, (max-width: 1440px) calc(100vw - 64px), 1376px"
                         className={styles.image}
+                        onError={() => setBrokenImages((prev) => ({ ...prev, [key]: true }))}
                       />
                     )}
                   </div>

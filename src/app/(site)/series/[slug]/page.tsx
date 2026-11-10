@@ -70,7 +70,7 @@ export default async function SeriesPage({
           <span aria-hidden="true">›</span>
           <Link href={routes.blog}>Feed</Link>
           <span aria-hidden="true">›</span>
-          <Link href={routes.topics}>Series</Link>
+          <Link href={routes.seriesIndex}>Series</Link>
           <span aria-hidden="true">›</span>
           <span aria-current="page">{series.title}</span>
         </nav>

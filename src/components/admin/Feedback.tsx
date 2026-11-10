@@ -76,7 +76,11 @@ export function FeedbackProvider({ children }: { children: React.ReactNode }) {
 
         <div className={styles.toastStack} aria-live="polite">
           {toasts.map((item) => (
-            <div key={item.id} className={`${styles.toast} ${item.tone === "success" ? styles.toastSuccess : styles.toastError}`} role="status">
+            <div
+              key={item.id}
+              className={`${styles.toast} ${item.tone === "success" ? styles.toastSuccess : styles.toastError}`}
+              role={item.tone === "error" ? "alert" : "status"}
+            >
               <span className={styles.toastDot} aria-hidden="true" />
               <p className={styles.toastText}>{item.message}</p>
               {item.action ? (

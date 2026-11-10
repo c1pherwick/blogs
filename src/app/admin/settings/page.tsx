@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { api, useApiCollection, type ApiPost } from "@/components/admin/api";
 import { Button } from "@/components/admin/Button";
 import { useToast } from "@/components/admin/Feedback";
-import { Card, CardHead, PageHeader } from "@/components/admin/kit";
+import { Card, CardHead, LoadingState, PageHeader } from "@/components/admin/kit";
 import { SocialIcon } from "@/components/icons/Icons";
 import styles from "./settings.module.scss";
 
@@ -132,7 +132,7 @@ export default function AdminSettingsPage() {
 
       {error ? <p role="alert" className={styles.formError}>{error}</p> : null}
 
-      {!loaded && !error ? <p className={styles.muted}>Loading settings…</p> : null}
+      {!loaded && !error ? <LoadingState label="Loading settings…" /> : null}
 
       <div className={styles.grid}>
         <Card>

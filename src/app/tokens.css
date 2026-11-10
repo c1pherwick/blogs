@@ -135,6 +135,29 @@
   --border: var(--gray-200);
   --border-light: var(--gray-100);
   --surface-secondary: var(--gray-50);
+  --surface-raised: var(--white);
+  --surface-sunken: var(--gray-50);
+  --border-strong: var(--gray-300);
+
+  /* Status roles — use these instead of raw red/green in components. */
+  --danger: var(--red-700);
+  --danger-bg: var(--red-50);
+  --success: var(--green-700);
+  --success-bg: var(--green-50);
+  --warning: var(--yellow-900);
+  --warning-bg: var(--yellow-50);
+
+  /* Focus — a single high-contrast ring for every interactive element. */
+  --focus-ring-color: var(--blue-600);
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+  --focus-ring: var(--focus-ring-width) solid var(--focus-ring-color);
+
+  /* Motion — shared durations/easing so reduced-motion overrides are global. */
+  --motion-fast: 150ms;
+  --motion-base: 240ms;
+  --motion-slow: 400ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
 
   /* Aliases used by the article/content stylesheets (fg/muted/accent). These
      were previously only defined inside admin-scoped modules, so public-page

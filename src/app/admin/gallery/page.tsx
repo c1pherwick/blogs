@@ -7,7 +7,7 @@ import { api, useApiCollection, type ApiAlbum } from "@/components/admin/api";
 import { Button } from "@/components/admin/Button";
 import { AdminDialog } from "@/components/admin/Dialog";
 import { useConfirm, useToast } from "@/components/admin/Feedback";
-import { PageHeader } from "@/components/admin/kit";
+import { LoadingState, PageHeader } from "@/components/admin/kit";
 import styles from "./gallery.module.scss";
 
 interface AlbumDraft {
@@ -104,7 +104,7 @@ export default function AdminGalleryPage() {
         }
       />
       {error ? <p role="alert" className={styles.formError}>{error}</p> : null}
-      {albumsC.loading ? <p className={styles.emptyNote}>Loading folders…</p> : null}
+      {albumsC.loading ? <LoadingState label="Loading folders…" /> : null}
       {albumsC.error ? <p role="alert" className={styles.formError}>Could not load folders: {albumsC.error}</p> : null}
       {!albumsC.loading && !albumsC.error && albumsC.items.length === 0 ? (
         <div className={styles.emptyState}>

@@ -8,7 +8,7 @@ import { Button } from "@/components/admin/Button";
 import { AdminDialog } from "@/components/admin/Dialog";
 import { MediaPicker } from "@/components/admin/MediaPicker";
 import { useConfirm, useToast } from "@/components/admin/Feedback";
-import { PageHeader } from "@/components/admin/kit";
+import { LoadingState, PageHeader } from "@/components/admin/kit";
 import styles from "./topics.module.scss";
 
 const PASTELS = ["blue", "green", "mint", "yellow", "red", "purple", "gray"];
@@ -119,7 +119,7 @@ export default function AdminTopicsPage() {
       />
 
       {error ? <p role="alert" className={styles.formError}>{error}</p> : null}
-      {topicsC.loading ? <p className={styles.emptyNote}>Loading topics…</p> : null}
+      {topicsC.loading ? <LoadingState label="Loading topics…" /> : null}
       {topicsC.error ? <p role="alert" className={styles.formError}>Could not load topics: {topicsC.error}</p> : null}
       {!topicsC.loading && !topicsC.error && topicsC.items.length === 0 ? (
         <p className={styles.emptyNote}>No topics yet. Create one to organise posts.</p>
