@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { site } from "@/lib/site";
 import styles from "./login.module.scss";
@@ -49,7 +50,7 @@ export default function AdminLoginPage() {
     <main className={`studio ${styles.page}`}>
       <section className={styles.pane} aria-labelledby="studio-title">
         <header className={styles.top}>
-          <a href="/" className={styles.brand} aria-label={`${site.name} home`}>
+          <Link href="/" className={styles.brand} aria-label={`${site.name} home`}>
             <span className={styles.mark} aria-hidden="true">
               B
             </span>
@@ -57,13 +58,13 @@ export default function AdminLoginPage() {
               <span className={styles.brandName}>Blog Studio</span>
               <span className={styles.brandKicker}>bishnuneupane13.com.np</span>
             </span>
-          </a>
-          <a href="/" className={styles.exit}>
+          </Link>
+          <Link href="/" className={styles.exit}>
             Back to site
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
               <path d="M6 3.5 10.5 8 6 12.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-          </a>
+          </Link>
         </header>
 
         <div className={styles.body}>
