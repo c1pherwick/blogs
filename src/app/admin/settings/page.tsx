@@ -239,7 +239,7 @@ export default function AdminSettingsPage() {
             </label>
             <div className={styles.field}>
               <span>Featured band colour</span>
-              <em>Prestyle theme behind the home page's featured story panel.</em>
+              <em>Prestyle theme behind the home page&apos;s featured story panel.</em>
               <div className={styles.themeRow}>
                 {FEATURE_THEMES.map((t) => (
                   <button
