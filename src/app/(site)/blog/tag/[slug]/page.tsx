@@ -23,8 +23,8 @@ export async function generateMetadata({
   return {
     title,
     description,
-    alternates: { canonical: `/blog/tag/${slug}` },
-    openGraph: { url: `/blog/tag/${slug}`, title, description, type: "website" },
+    alternates: { canonical: routes.tag(slug) },
+    openGraph: { url: routes.tag(slug), title, description, type: "website" },
   };
 }
 
@@ -37,6 +37,12 @@ export default async function TagPage({ params }: { params: Promise<{ slug: stri
   const cats = await allTopics();
   const topics = cats.map((c) => ({ slug: c.slug, name: c.name }));
   const tags = await allTags();
+  // Keep the current tag visible even when it falls outside the top list.
+  const tagRail = tags.slice(0, 14);
+  if (!tagRail.some((t) => t.slug === slug)) {
+    const current = tags.find((t) => t.slug === slug);
+    if (current) tagRail[tagRail.length - 1] = current;
+  }
 
   return (
     <>
@@ -54,15 +60,15 @@ export default async function TagPage({ params }: { params: Promise<{ slug: stri
           {posts.length} {posts.length === 1 ? "story" : "stories"} tagged {name}.
         </p>
         <div className={styles.tags}>
-          {tags.slice(0, 14).map((t) => (
-            <Link key={t.slug} href={`/blog/tag/${t.slug}`} className={`pill ${t.slug === slug ? "pill-active" : ""}`}>
+          {tagRail.map((t) => (
+            <Link key={t.slug} href={routes.tag(t.slug)} className={`pill ${t.slug === slug ? "pill-active" : ""}`}>
               {t.name}
             </Link>
           ))}
         </div>
       </div>
 
-      <LatestSection posts={posts} topics={topics} variant="grid" />
+      <LatestSection posts={posts} topics={topics} title={`Stories tagged ${name}`} variant="grid" />
     </>
   );
 }
