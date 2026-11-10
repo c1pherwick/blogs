@@ -9,6 +9,7 @@ export function UnsubscribeForm({ email, token }: { email: string; token: string
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (status === "sending") return;
     setStatus("sending");
     setMessage("");
     try {
@@ -30,11 +31,13 @@ export function UnsubscribeForm({ email, token }: { email: string; token: string
   if (status === "done") return <p className={styles.done} role="status">{message}</p>;
 
   return (
-    <form onSubmit={submit} className={styles.form}>
+    <form onSubmit={submit} className={styles.form} aria-busy={status === "sending"}>
       <button type="submit" className="btn btn-primary" disabled={status === "sending"}>
         {status === "sending" ? "Removing…" : "Unsubscribe"}
       </button>
-      {message ? <p className={styles.error} role="status">{message}</p> : null}
+      {status === "error" ? (
+        <p className={styles.error} role="alert">{message}</p>
+      ) : null}
     </form>
   );
 }

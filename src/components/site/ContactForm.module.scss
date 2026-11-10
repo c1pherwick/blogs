@@ -99,9 +99,18 @@
   gap: 14px;
 }
 
+.optional {
+  font-weight: 400;
+  color: var(--gray-500);
+}
+
 .status {
   font-size: 13px;
   color: var(--gray-600);
+}
+
+.status:empty {
+  display: none;
 }
 
 .error {
