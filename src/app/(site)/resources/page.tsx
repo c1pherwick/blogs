@@ -11,7 +11,7 @@ const description =
 export const metadata: Metadata = {
   title: "Resources",
   description,
-  alternates: { canonical: "/resources" },
+  alternates: { canonical: routes.resources },
   openGraph: { url: "/resources", title: "Resources", description },
 };
 
