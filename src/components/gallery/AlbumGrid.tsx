@@ -24,14 +24,15 @@ function youTubeId(raw: string): string | null {
 
 export function AlbumGrid({ photos }: { photos: GalleryPhoto[]; count?: number }) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const [broken, setBroken] = useState<Record<string, true>>({});
 
   // The first photo is the LCP element on album pages — load it eagerly.
   const firstImageIdx = photos.findIndex((p) => p.kind !== "video");
 
-  const items: LightboxItem[] = photos.map((p) => ({
+  const items: LightboxItem[] = photos.map((p, i) => ({
     src: p.src,
-    alt: p.alt,
-    caption: `${p.caption}${p.takenAt ? ` · ${formatDate(p.takenAt)}` : ""}`,
+    alt: p.alt || p.caption || `Photo ${i + 1}`,
+    caption: [p.caption, p.takenAt ? formatDate(p.takenAt) : ""].filter(Boolean).join(" · "),
     kind: p.kind,
     poster: p.poster,
   }));
@@ -41,6 +42,7 @@ export function AlbumGrid({ photos }: { photos: GalleryPhoto[]; count?: number }
       <ul className={styles.grid}>
         {photos.map((photo, i) => {
           const videoId = photo.kind === "video" ? youTubeId(photo.src) : null;
+          const label = photo.caption || photo.alt || `Photo ${i + 1}`;
 
           return (
             <li
@@ -60,9 +62,7 @@ export function AlbumGrid({ photos }: { photos: GalleryPhoto[]; count?: number }
                   type="button"
                   className={styles.item}
                   onClick={() => setOpenIndex(i)}
-                  aria-label={
-                    photo.kind === "video" ? `Play video: ${photo.caption}` : `Open photo: ${photo.caption}`
-                  }
+                  aria-label={photo.kind === "video" ? `Play video: ${label}` : `Open photo: ${label}`}
                 >
                   <span className={styles.media}>
                     {photo.kind === "video" ? (
@@ -83,6 +83,10 @@ export function AlbumGrid({ photos }: { photos: GalleryPhoto[]; count?: number }
                       ) : (
                         <span className={`${styles.image} ${styles.videoPlaceholder}`} aria-hidden="true">▶</span>
                       )
+                    ) : broken[photo.id] ? (
+                      <span className={styles.imageFallback}>
+                        {photo.alt || photo.caption || "Image unavailable"}
+                      </span>
                     ) : (
                       <Image
                         src={photo.src}
@@ -93,6 +97,7 @@ export function AlbumGrid({ photos }: { photos: GalleryPhoto[]; count?: number }
                         loading={i === firstImageIdx ? "eager" : "lazy"}
                         fetchPriority={i === firstImageIdx ? "high" : undefined}
                         className={styles.image}
+                        onError={() => setBroken((prev) => ({ ...prev, [photo.id]: true }))}
                       />
                     )}
                   </span>
@@ -106,7 +111,7 @@ export function AlbumGrid({ photos }: { photos: GalleryPhoto[]; count?: number }
                   ) : null}
 
                   <span className={styles.overlay} aria-hidden="true">
-                    <span className={styles.caption}>{photo.caption}</span>
+                    <span className={styles.caption}>{label}</span>
                     {photo.takenAt ? <span className={styles.date}>{formatDate(photo.takenAt)}</span> : null}
                   </span>
                 </button>
@@ -232,7 +237,7 @@ function InlineVideo({
 
       <button type="button" className={styles.videoHit} onClick={onOpen} aria-label={`Open video: ${caption}`}>
         <span className={styles.overlay}>
-          <span className={styles.caption}>{caption}</span>
+          <span className={styles.caption}>{caption || "Video"}</span>
           {takenAt ? <span className={styles.date}>{formatDate(takenAt)}</span> : null}
         </span>
       </button>

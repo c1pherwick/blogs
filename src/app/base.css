@@ -26,6 +26,8 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  /* Long URLs and unbroken strings must wrap instead of widening the page. */
+  overflow-wrap: break-word;
 }
 
 /* Headings — blog.google display scale (Google Sans) */
@@ -117,6 +119,13 @@ img {
   display: block;
 }
 
+svg,
+video,
+canvas,
+iframe {
+  max-width: 100%;
+}
+
 h1,
 h2,
 h3,
@@ -131,9 +140,27 @@ figure {
 }
 
 :focus-visible {
-  outline: 2px solid var(--gray-400);
-  outline-offset: 2px;
-  border-radius: 4px;
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: var(--radius-4);
+}
+
+@media (forced-colors: active) {
+  :focus-visible {
+    outline: 3px solid CanvasText;
+  }
+}
+
+/* Honour the OS motion preference for any animation that did not opt out. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 .sr-only {

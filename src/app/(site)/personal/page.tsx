@@ -38,6 +38,8 @@ export default async function PersonalPage() {
     getSettings(),
   ]);
   const writing = [...posts].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  // The hub shows the newest few; the full archive lives at /personal/blogs.
+  const recent = writing.slice(0, 6);
   const socials = settings.socials.slice(0, 4);
 
   return (
@@ -109,7 +111,7 @@ export default async function PersonalPage() {
             </Link>
           </div>
           <ul className={styles.grid}>
-            {writing.map((post, i) => {
+            {recent.map((post, i) => {
               const cat = getCategory(post.category);
               return (
                 <li key={post.slug}>
@@ -147,7 +149,9 @@ export default async function PersonalPage() {
           </ul>
         </section>
       ) : (
-        <p className={styles.foot}>Nothing filed under Personal yet.</p>
+        <p className={styles.foot}>
+          Nothing filed under Personal yet. <Link href={routes.blog}>Read the main feed</Link> in the meantime.
+        </p>
       )}
 
       {/* ---------- Albums ---------- */}

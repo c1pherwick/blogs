@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { api } from "@/components/admin/api";
@@ -58,7 +58,11 @@ export function AdminShell({ children }: { children?: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [signingOut, setSigningOut] = useState(false);
+  const [signOutError, setSignOutError] = useState("");
   const [railOpen, setRailOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const railRef = useRef<HTMLElement>(null);
+  const burgerRef = useRef<HTMLButtonElement>(null);
   const isEditor = pathname === "/admin/posts/new" || /^\/admin\/posts\/[^/]+\/edit$/.test(pathname);
   const [collapsed, setCollapsed] = useState(false);
 
@@ -92,13 +96,64 @@ export function AdminShell({ children }: { children?: React.ReactNode }) {
     setRailOpen(false);
   }, [pathname]);
 
+  // The rail is a drawer only below the layout breakpoint; track that so the
+  // closed drawer can be removed from the tab order.
+  useEffect(() => {
+    const query = window.matchMedia("(max-width: 1100px)");
+    const sync = () => setIsMobile(query.matches);
+    sync();
+    query.addEventListener("change", sync);
+    return () => query.removeEventListener("change", sync);
+  }, []);
+
+  // Mobile drawer: lock the page, trap focus inside, restore on close.
   useEffect(() => {
     if (!railOpen) return;
+    if (!window.matchMedia("(max-width: 1100px)").matches) return;
+
+    const main = document.querySelector("main");
+    const previousOverflow = document.body.style.overflow;
+    const focusables = () =>
+      Array.from(
+        railRef.current?.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ) ?? [],
+      ).filter((el) => el.offsetParent !== null);
+
+    const frame = window.requestAnimationFrame(() => {
+      railRef.current?.querySelector<HTMLElement>('button[aria-label="Close menu"]')?.focus();
+    });
+
+    main?.setAttribute("inert", "");
+    document.body.style.overflow = "hidden";
+
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setRailOpen(false);
+      if (event.key === "Escape") {
+        setRailOpen(false);
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const list = focusables();
+      if (list.length === 0) return;
+      const first = list[0];
+      const last = list[list.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    document.addEventListener("keydown", onKey);
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      document.removeEventListener("keydown", onKey);
+      main?.removeAttribute("inert");
+      document.body.style.overflow = previousOverflow;
+      burgerRef.current?.focus();
+    };
   }, [railOpen]);
 
   // `[` toggles the rail, like most editors.
@@ -115,10 +170,15 @@ export function AdminShell({ children }: { children?: React.ReactNode }) {
 
   async function signOut() {
     setSigningOut(true);
+    setSignOutError("");
     try {
       await api.del("/api/admin/auth");
-    } catch {
-      /* redirect below regardless */
+    } catch (error) {
+      setSigningOut(false);
+      setSignOutError(
+        error instanceof Error ? error.message : "Could not sign out. Please try again.",
+      );
+      return;
     }
     router.push("/admin/login");
     router.refresh();
@@ -137,7 +197,12 @@ export function AdminShell({ children }: { children?: React.ReactNode }) {
       {railOpen ? (
         <button type="button" className={styles.scrim} aria-label="Close menu" onClick={() => setRailOpen(false)} />
       ) : null}
-      <aside id="admin-rail" className={railOpen ? `${styles.rail} ${styles.railOpen}` : styles.rail}>
+      <aside
+        ref={railRef}
+        id="admin-rail"
+        className={railOpen ? `${styles.rail} ${styles.railOpen}` : styles.rail}
+        inert={isMobile && !railOpen ? true : undefined}
+      >
         <button type="button" className={styles.railClose} aria-label="Close menu" onClick={() => setRailOpen(false)}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
             <path d="m6 6 12 12M18 6 6 18" />
@@ -203,7 +268,14 @@ export function AdminShell({ children }: { children?: React.ReactNode }) {
             </span>
             <span className={styles.navText}>View site</span>
           </Link>
-          <button type="button" className={styles.signOut} onClick={signOut} disabled={signingOut} title="Sign out">
+          <button
+            type="button"
+            className={styles.signOut}
+            onClick={signOut}
+            disabled={signingOut}
+            aria-busy={signingOut}
+            title="Sign out"
+          >
             <span className={styles.navIcon}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M15 17l5-5-5-5M20 12H9M12 20H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6" />
@@ -211,6 +283,11 @@ export function AdminShell({ children }: { children?: React.ReactNode }) {
             </span>
             <span className={styles.navText}>{signingOut ? "Signing out…" : "Sign out"}</span>
           </button>
+          {signOutError ? (
+            <p className={styles.signOutError} role="alert">
+              {signOutError}
+            </p>
+          ) : null}
         </div>
       </aside>
 
@@ -219,6 +296,7 @@ export function AdminShell({ children }: { children?: React.ReactNode }) {
       {!isEditor && !railOpen ? (
         <button
           type="button"
+          ref={burgerRef}
           className={styles.burger}
           aria-label="Open admin menu"
           aria-expanded={railOpen}
