@@ -17,6 +17,7 @@ Notable changes, newest first. Dates are commit dates (2026).
 - PR #20 (merged) — route-quality inventory across App Router, admin, API and metadata surfaces.
 
 ### Fixed
+- **Editor data safety (PR #50):** `Cmd/Ctrl+S` no longer demotes a published post to draft; block deletion offers an undo; a missing headline is explained inline with focus moved to the field; deleting a post uses the shared confirm dialog instead of `window.confirm`.
 - Ad-hoc Studio loading text replaced with one accessible component; tables and confirmations made consistent across Posts, Authors, Comments, Inbox, Topics, Series, Gallery, Media and Settings.
 - Header drawer focus containment and overlay labelling (#44).
 - Article reading progress accuracy and image failure fallbacks (#42).

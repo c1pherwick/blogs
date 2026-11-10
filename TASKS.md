@@ -16,7 +16,7 @@ Status legend: **Done** = implemented and verified · **PR open** = implemented,
 | 8 | Gallery and album browsing | PR open (#43) | `AlbumGrid`, `gallery/[slug]` |
 | 9 | Studio navigation and shell | PR open (#47) | `AdminShell` |
 | 10 | Standardize dashboard, tables, filters, feedback | **PR open (#48)** | admin `kit`, 10 pages, `Feedback` |
-| 11 | Block editor usability and publishing workflow | Todo (Phase 1) | `src/components/admin/PostEditor.tsx` |
+| 11 | Block editor usability and publishing workflow | **PR open (#50, partial)** | `src/components/admin/PostEditor.tsx` |
 | 12 | Media library and upload workflows | Todo (Phase 1) | `src/app/admin/media`, `gallery/[id]`, upload route |
 | 13 | Accessibility audit for public site and Studio | PR open (#45, partial) | tokens, focus ring, motion guardrails |
 | 14 | CI for typecheck, lint, tests, build | PR open (#26 — base must move to `main`) | `.github/workflows/ci.yml` |
@@ -25,7 +25,7 @@ Status legend: **Done** = implemented and verified · **PR open** = implemented,
 | 17 | Newsletter, contact and public forms | PR open (#29) | `src/components/site/*Form*` |
 | 18 | About, Personal, Resources, not-found polish | PR open (#39) | `(site)` pages |
 | 19 | Route inventory | **Done** (#20 merged) | `route-inventory.md` |
-| 28 | Preserve Oct-29 UI as visual baseline | Todo (Phase 1) | docs-only unless a browser is available |
+| 28 | Preserve Oct-29 UI as visual baseline | **In progress (Kilo)** — branch `kilo/issue-28-visual-baseline`, Playwright config + tests untracked | `playwright.config.ts`, `tests/`, `docs/` |
 
 ## Platform enhancements
 
@@ -48,3 +48,4 @@ Status legend: **Done** = implemented and verified · **PR open** = implemented,
 - [ ] Rebase #27 onto the restored baseline (owner's note on #38).
 - [ ] Rebase #26 onto `main` after #21 merges.
 - [ ] Remove the local docs worktree/branch once this documentation lands.
+- [ ] Add `test-results/` (and Playwright artifacts) to `.gitignore` before Kilo's #28 branch is committed.

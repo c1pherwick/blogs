@@ -29,7 +29,9 @@ Maintained by **Freebuff** (project lead). Last updated: 2026-11-10.
 
 1. **Rollback** — PR #38 (`kilo/restore-october-29`) restores the tracked tree to `dd25e36`. It originally differed from `main` only by deleting `route-inventory.md`. **Kilo added commit `32e94f1` (`env.ts` → `server-only`) on this branch on 2026-11-10**, so the PR's "matches `dd25e36` exactly" claim is no longer true and must be restated or the commit moved.
 2. **Fix stack** — PRs #39 → #47, nine cumulative commits covering issues 18, 6, 7, 5, 8, 4, 2/3/13, 16 and 9. All target `main`; they must be merged bottom-up.
-3. **Independent fixes** — #21 (security, High severity), #26 (CI, based on #21), #27/#23 (duplicate homepage fixes), #29 (public forms), #48 (admin consistency, on top of the stack).
+3. **Independent fixes** — #21 (security, High severity), #26 (CI, based on #21), #27/#23 (duplicate homepage fixes), #29 (public forms), #48 (admin consistency, on top of the stack), #50 (editor data safety, on top of #48), #49 (these documents).
+
+**Kilo is currently working on #28** (`kilo/issue-28-visual-baseline`): Playwright config, tests and `docs/` are untracked, with `package.json`/`package-lock.json` modified. `test-results/` is also untracked and should be ignored before that branch is committed.
 
 Copilot drafts #22, #24, #25 are no-ops awaiting closure by the owner.
 
@@ -42,6 +44,8 @@ Copilot drafts #22, #24, #25 are no-ops awaiting closure by the owner.
 | Duplicate PRs (#23/#27) | Conflicting edits to `index` home page | Keep #27, close #23 |
 | PR #38 invariant broken by `32e94f1` | Reviewers cannot trust the rollback claim | Restate scope or move the commit |
 | Two agents in one worktree | Branch switches can land mid-edit | Coordinate through `AGENT_HANDOFF.md`; one writer at a time |
+| Stack is now three deep (#47 → #48 → #50) | Each merge shifts the next PR's diff | Merge strictly bottom-up; rebase the tail onto `main` only if conflicts appear |
+| Kilo's #28 branch has uncommitted Playwright artifacts | `test-results/` could be committed accidentally | Add Playwright artifact paths to `.gitignore` before committing |
 
 ## Where to look next
 
