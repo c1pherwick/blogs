@@ -44,8 +44,11 @@ export function ArticleProgress({
       frame = 0;
       const el = document.querySelector("article");
       if (!el || !fillRef.current) return;
+      // Measure from the article's own top, not the document top: the cover
+      // and header sit above it, so scrollY alone overstated progress.
+      const start = window.scrollY + el.getBoundingClientRect().top;
       const total = el.offsetHeight - window.innerHeight;
-      const done = total > 0 ? Math.min(Math.max(window.scrollY / total, 0), 1) : 1;
+      const done = total > 0 ? Math.min(Math.max((window.scrollY - start) / total, 0), 1) : 1;
       fillRef.current.style.transform = `scaleX(${done})`;
       const h1 = document.querySelector("h1");
       const bar = barRef.current;
