@@ -6,29 +6,17 @@ import { formatDate } from "@/lib/dates";
 import type { Post } from "@/lib/types";
 import { NewsletterSection } from "@/components/site/NewsletterSection";
 import { StoryCarousel } from "@/components/site/HomeSections";
+import { selectHomePosts } from "@/lib/home-selection";
 import styles from "./home.module.scss";
 import { routes } from "@/lib/routes";
 
 export default async function HomePage() {
   const [posts, settings] = await Promise.all([getAllPosts(), getSettings()]);
-  // Newest first; featured posts lead the rail.
-  const byDate = [...posts].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-  );
-  const featuredPosts = byDate.filter((post) => post.featured);
-  const rest = byDate.filter((post) => !post.featured);
-  const combined = [...featuredPosts, ...rest];
+  // One pure selection pass guarantees a story appears at most once: any post
+  // rendered in the journal band is removed from the spotlight rail.
+  const selection = selectHomePosts(posts, { featurePostSlug: settings.featurePost });
   // Distinct topics actually in print — the hero's stat row.
   const topics = [...new Set(posts.map((p) => p.category))];
-
-  // Personal stories get their own band below the main rail: the six newest
-  // from that topic (slicing the all-topics list first dropped any personal
-  // post that wasn't in the global top six).
-  const personalPosts = byDate.filter((p) => p.category === "personal").slice(0, 6);
-
-  // The featured band shows the post pinned in settings, falling back to the
-  // newest personal story when nothing is chosen (or the slug no longer exists).
-  const featurePost = settings.featurePost ? posts.find((p) => p.slug === settings.featurePost) : undefined;
 
   // Statement headline split like the reference: "Word one," floats left,
   // "word two." drops to the right on the next line.
@@ -68,31 +56,35 @@ export default async function HomePage() {
         <p className={styles.statementLede}>{settings.hero.standfirst}</p>
       </div>
 
-      {combined.length > 0 ? (
+      {selection.spotlight.length > 0 ? (
         <StoryCarousel
           id="spotlight-heading"
           anchor="latest"
           ariaLabel="Featured story"
-          posts={combined}
+          posts={selection.spotlight}
           href={routes.blog}
           limit={8}
           variant="spotlight"
-          featuredSlugs={new Set(featuredPosts.map((p) => p.slug))}
+          featuredSlugs={selection.featuredSlugs}
         />
       ) : null}
 
-      {personalPosts.length > 0 ? (
+      {selection.journalFeature || selection.journalRail.length > 0 ? (
         <>
-          <JournalFeature post={featurePost ?? personalPosts[0]} theme={settings.featureTheme} />
-          <StoryCarousel
-            id="personal-rail-heading"
-            title="From the personal journal"
-            subtitle="Notes from the life around the work."
-            posts={personalPosts.slice(1)}
-            href={routes.personal}
-            moreLabel="More on Personal"
-            variant="journal"
-          />
+          {selection.journalFeature ? (
+            <JournalFeature post={selection.journalFeature} theme={settings.featureTheme} />
+          ) : null}
+          {selection.journalRail.length > 0 ? (
+            <StoryCarousel
+              id="personal-rail-heading"
+              title="From the personal journal"
+              subtitle="Notes from the life around the work."
+              posts={selection.journalRail}
+              href={routes.personal}
+              moreLabel="More on Personal"
+              variant="journal"
+            />
+          ) : null}
         </>
       ) : null}
 
