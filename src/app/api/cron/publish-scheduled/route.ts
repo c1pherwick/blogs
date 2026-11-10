@@ -1,5 +1,6 @@
 import { revalidateContentCache } from "@/lib/data";
 import { db, json } from "@/lib/api-helpers";
+import { timingSafeEqualStrings } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
 
@@ -15,10 +16,19 @@ export const dynamic = "force-dynamic";
 const today = () => new Date().toISOString().slice(0, 10);
 
 export async function GET(req: Request) {
-  const secret = process.env.CRON_SECRET;
-  if (secret) {
-    const provided = req.headers.get("authorization");
-    if (provided !== `Bearer ${secret}`) return json({ error: "Unauthorized" }, 401);
+  const secret = process.env.CRON_SECRET?.trim();
+  if (!secret) {
+    // Fail closed in production: an unauthenticated endpoint must never be able
+    // to publish scheduled content. Local development stays usable without it.
+    if (process.env.NODE_ENV === "production") {
+      console.error("[cron] CRON_SECRET is not configured; refusing to publish");
+      return json({ error: "Cron is not configured" }, 503);
+    }
+  } else {
+    const provided = req.headers.get("authorization") ?? "";
+    if (!timingSafeEqualStrings(provided, `Bearer ${secret}`)) {
+      return json({ error: "Unauthorized" }, 401);
+    }
   }
 
   const { data: due, error: readError } = await db
