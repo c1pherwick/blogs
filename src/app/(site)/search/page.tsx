@@ -34,9 +34,12 @@ export default async function SearchPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const sp = await searchParams;
-  const q = typeof sp.q === "string" ? sp.q : "";
+  const q = (typeof sp.q === "string" ? sp.q : "").slice(0, 120);
   const topic = typeof sp.topic === "string" ? sp.topic : "";
-  const sort = (typeof sp.sort === "string" ? sp.sort : "relevance") as "relevance" | "newest" | "oldest";
+  const requestedSort = typeof sp.sort === "string" ? sp.sort : "relevance";
+  const sort = (["relevance", "newest", "oldest"] as const).includes(requestedSort as never)
+    ? (requestedSort as "relevance" | "newest" | "oldest")
+    : "relevance";
   const terms = q.trim().toLowerCase().split(/\s+/).filter(Boolean);
 
   function matches(post: Post, terms: string[]) {
@@ -69,7 +72,7 @@ export default async function SearchPage({
         <span aria-current="page">Search</span>
       </nav>
 
-      <form id="search-form" action="/search" method="get" className={styles.searchBar}>
+      <form id="search-form" action={routes.search} method="get" className={styles.searchBar}>
         <SearchIcon />
         <input
           type="search"
@@ -79,9 +82,17 @@ export default async function SearchPage({
           aria-label="Search"
         />
         {q ? <SearchClear /> : null}
+        {topic ? <input type="hidden" name="topic" value={topic} /> : null}
+        {sort !== "relevance" ? <input type="hidden" name="sort" value={sort} /> : null}
+        <button type="submit" className={styles.submit}>Search</button>
       </form>
 
       <SearchFilters total={results.length + albums.length} />
+      {!q && !topic ? (
+        <p className={styles.hint}>
+          Showing every published story. Type a query or choose a topic to narrow the archive.
+        </p>
+      ) : null}
 
       {results.length + albums.length === 0 ? (
         <div className={styles.none}>
@@ -92,7 +103,7 @@ export default async function SearchPage({
         </div>
       ) : (
         <>
-          <ul className={styles.results}>
+          <ul className={styles.results} aria-label="Search results">
             {results.map((post) => {
               const category = getCategory(post.category);
               return (
@@ -103,7 +114,9 @@ export default async function SearchPage({
                     </p>
                     <h2 className={styles.resultTitle}>
                       <Link href={routes.post(post.slug)}>{highlight(post.title, terms)}</Link>
-                    </h2>                     <p className={styles.byline}>{post.readingMinutes} min read · {relativeDate(post.date)}</p>
+                    </h2>
+                    {post.description ? <p className={styles.snippet}>{post.description}</p> : null}
+                    <p className={styles.byline}>{post.readingMinutes} min read · {relativeDate(post.date)}</p>
                   </div>
                   {post.cover ? (
                     <Link href={routes.post(post.slug)} className={styles.thumb} tabIndex={-1} aria-hidden="true">

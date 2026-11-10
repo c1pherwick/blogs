@@ -42,7 +42,8 @@ export function SearchFiltersBar({
     const next = new URLSearchParams(params.toString());
     if (value) next.set(key, value);
     else next.delete(key);
-    router.push(`${pathname}?${next.toString()}`);
+    const query = next.toString();
+    router.push(query ? `${pathname}?${query}` : pathname);
     setOpen(null);
   }
 
@@ -70,7 +71,7 @@ export function SearchFiltersBar({
       </div>
 
       <div className={styles.right}>
-        <p className={styles.count}>
+        <p className={styles.count} role="status" aria-live="polite">
           {total} matching {total === 1 ? "result" : "results"}.
         </p>
         <Dropdown
