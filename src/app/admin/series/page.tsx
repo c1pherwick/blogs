@@ -8,7 +8,7 @@ import { Button } from "@/components/admin/Button";
 import { AdminDialog } from "@/components/admin/Dialog";
 import { MediaPicker } from "@/components/admin/MediaPicker";
 import { useConfirm, useToast } from "@/components/admin/Feedback";
-import { PageHeader } from "@/components/admin/kit";
+import { LoadingState, PageHeader } from "@/components/admin/kit";
 import styles from "./series.module.scss";
 
 interface SeriesDraft {
@@ -121,7 +121,7 @@ export default function AdminSeriesPage() {
       />
 
       {error ? <p role="alert" className={styles.formError}>{error}</p> : null}
-      {seriesC.loading ? <p className={styles.emptyNote}>Loading series…</p> : null}
+      {seriesC.loading ? <LoadingState label="Loading series…" /> : null}
       {seriesC.error ? <p role="alert" className={styles.formError}>Could not load series: {seriesC.error}</p> : null}
       {!seriesC.loading && !seriesC.error && seriesC.items.length === 0 ? (
         <p className={styles.emptyNote}>No series yet. Group a few posts into a reading order.</p>

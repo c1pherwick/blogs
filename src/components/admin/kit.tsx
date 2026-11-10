@@ -106,13 +106,24 @@ export function CardHead({
 export function Table({
   children,
   compact = false,
+  label = "Data table",
 }: {
   children: React.ReactNode;
   compact?: boolean;
+  label?: string;
 }) {
   return (
-    <div className={styles.tableWrap} tabIndex={0}>
+    <div className={styles.tableWrap} tabIndex={0} role="region" aria-label={label}>
       <table className={`${styles.table}${compact ? " " + styles.compact : ""}`}>{children}</table>
+    </div>
+  );
+}
+
+export function LoadingState({ label = "Loading…" }: { label?: string }) {
+  return (
+    <div className={styles.state} role="status" aria-live="polite">
+      <span className={styles.spinner} aria-hidden="true" />
+      <span>{label}</span>
     </div>
   );
 }
@@ -122,11 +133,13 @@ export function EmptyState({
   body,
   action,
   href,
+  onAction,
 }: {
   title: string;
   body: string;
   action?: string;
   href?: string;
+  onAction?: () => void;
 }) {
   return (
     <div className={styles.empty}>
@@ -139,7 +152,11 @@ export function EmptyState({
       </div>
       <p className={styles.emptyTitle}>{title}</p>
       <p className={styles.emptyBody}>{body}</p>
-      {action && href ? (
+      {action && onAction ? (
+        <button type="button" className="btn btn-primary" onClick={onAction}>
+          {action}
+        </button>
+      ) : action && href ? (
         <Link href={href} className="btn btn-primary">
           {action}
         </Link>
@@ -160,13 +177,12 @@ export function Segmented<T extends string>({
   label: string;
 }) {
   return (
-    <div className={styles.segmented} role="tablist" aria-label={label}>
+    <div className={styles.segmented} role="group" aria-label={label}>
       {options.map((o) => (
         <button
           key={o.value}
           type="button"
-          role="tab"
-          aria-selected={value === o.value}
+          aria-pressed={value === o.value}
           className={value === o.value ? styles.segActive : styles.seg}
           onClick={() => onChange(o.value)}
         >

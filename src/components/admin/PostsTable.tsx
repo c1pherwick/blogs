@@ -7,7 +7,7 @@ import { api, useApiCollection, type ApiPost, type ApiTopic } from "./api";
 import { Button } from "@/components/admin/Button";
 import { useConfirm, useToast } from "@/components/admin/Feedback";
 import { AdminDialog } from "./Dialog";
-import { EmptyState, Segmented, StatusChip, statusTone, Switch, Table } from "@/components/admin/kit";
+import { EmptyState, LoadingState, Segmented, StatusChip, statusTone, Switch, Table } from "@/components/admin/kit";
 import { DateCell } from "@/components/admin/kit";
 import { PostQuickView } from "@/components/admin/PostQuickView";
 import { formatDate } from "@/lib/dates";
@@ -227,7 +227,7 @@ export function PostsTable() {
       </label>
 
       {postsC.loading ? (
-        <p className={styles.muted}>Loading posts…</p>
+        <LoadingState label="Loading posts…" />
       ) : postsC.error ? (
         <p className={styles.muted}>Could not load posts: {postsC.error}</p>
       ) : rows.length === 0 ? (
@@ -240,7 +240,7 @@ export function PostsTable() {
           />
         </div>
       ) : (
-        <Table compact={compactH}>
+        <Table compact={compactH} label="Posts">
           <thead>
             <tr>
               <th className={styles.checkCol}>

@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { api, useApiCollection, type ApiComment } from "@/components/admin/api";
 import { Button } from "@/components/admin/Button";
 import { useConfirm, useToast } from "@/components/admin/Feedback";
-import { Card, PageHeader, Segmented, StatusChip, Table } from "@/components/admin/kit";
+import { Card, LoadingState, PageHeader, Segmented, StatusChip, Table } from "@/components/admin/kit";
 import kit from "@/components/admin/kit.module.scss";
 import styles from "./comments.module.scss";
 import { DateCell } from "@/components/admin/kit";
@@ -56,7 +56,7 @@ export default function AdminCommentsPage() {
   async function remove(comment: ApiComment) {
     const ok = await confirm({
       title: "Delete comment",
-      body: "Delete this comment? You can undo this from the toast.",
+      body: `Delete the comment by ${comment.name} on ${comment.post_slug ?? "this post"}? You can undo this from the toast.`,
       confirmLabel: "Delete comment",
     });
     if (!ok) return;
@@ -142,7 +142,7 @@ export default function AdminCommentsPage() {
       <PageHeader title="Comments" description="Reader responses on published posts. Approve to show them under the article." />
       {error ? <p role="alert" className={styles.formError}>{error}</p> : null}
       {commentsC.loading ? (
-        <p className={styles.emptyNote}>Loading comments…</p>
+        <LoadingState label="Loading comments…" />
       ) : commentsC.error ? (
         <p role="alert" className={styles.emptyNote}>Could not load comments: {commentsC.error}</p>
       ) : commentsC.items.length === 0 ? (
@@ -176,7 +176,7 @@ export default function AdminCommentsPage() {
             <p className={styles.emptyNote}>No comments match this filter.</p>
           ) : (
             <Card>
-              <Table>
+              <Table label="Comments">
                 <thead>
                   <tr>
                     <th className={styles.checkCol}>
